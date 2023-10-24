@@ -1,3 +1,10 @@
+## DVLA Usage
+This is a fork of [OpenCommit](https://github.com/di-sukharev/opencommit).
+- It includes functionality to use Azure OpenAPI service as a backend.
+- The package has been renamed to `@dvla/opencommit` for internal use.
+- The MIT License still applies and references the contribution from the original author ` Dima Sukharev`.
+
+
 <div align="center">
   <div>
     <img src=".github/logo-grad.svg" alt="OpenCommit logo"/>
