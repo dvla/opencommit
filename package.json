@@ -1,6 +1,6 @@
 {
-  "name": "opencommit",
-  "version": "3.0.4",
+  "name": "@dvla/opencommit",
+  "version": "0.3.0.4",
   "description": "Auto-generate impressive commits in 1 second. Killing lame commits with AI 🤯🔫",
   "keywords": [
     "git",
@@ -20,7 +20,7 @@
     "oco": "./out/cli.cjs"
   },
   "repository": {
-    "url": "https://github.com/di-sukharev/opencommit"
+    "url": "https://github.com/dvla/opencommit"
   },
   "type": "module",
   "author": "https://github.com/di-sukharev",
@@ -35,7 +35,7 @@
     ]
   },
   "publishConfig": {
-    "access": "public"
+    "registry": "https://nexus.tooling.dvla.gov.uk/repository/npm-private"
   },
   "scripts": {
     "watch": "npm run -S build -- --sourcemap --watch",

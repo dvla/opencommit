@@ -11,3 +11,6 @@ uncaughtExceptions.log
 src/*.json
 .idea
 test.ts
+
+# Build output directory
+out/
