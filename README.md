@@ -99,7 +99,7 @@ OCO_MODEL=<either 'gpt-4', 'gpt-3.5-turbo-16k' (default), 'gpt-3.5-turbo-0613' o
 OCO_OPENAI_API_TYPE='azure'
 OCO_OPENAI_API_KEY=<your Azure API token>
 OCO_OPENAI_BASE_PATH=<azure path for example: https://EXAMPLE.openai.azure.com/>
-OCO_AZURE_ENGINE=<azure deployment name>
+OCO_AZURE_DEPLOYMENT=<azure deployment name>
 OCO_AZURE_API_VERSION=<azure api version>
 ```
 

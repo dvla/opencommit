@@ -20,7 +20,7 @@ export enum CONFIG_KEYS {
   OCO_OPENAI_API_TYPE = 'OCO_OPENAI_API_TYPE',
   OCO_DESCRIPTION = 'OCO_DESCRIPTION',
   OCO_EMOJI = 'OCO_EMOJI',
-  OCO_AZURE_ENGINE = 'OCO_AZURE_ENGINE',
+  OCO_AZURE_DEPLOYMENT = 'OCO_AZURE_DEPLOYMENT',
   OCO_MODEL = 'OCO_MODEL',
   OCO_LANGUAGE = 'OCO_LANGUAGE',
   OCO_MESSAGE_TEMPLATE_PLACEHOLDER = 'OCO_MESSAGE_TEMPLATE_PLACEHOLDER',
@@ -160,9 +160,9 @@ export const configValidators = {
     return value;
   },
 
-  [CONFIG_KEYS.OCO_AZURE_ENGINE](value: any) {
+  [CONFIG_KEYS.OCO_AZURE_DEPLOYMENT](value: any) {
     validateConfig(
-      CONFIG_KEYS.OCO_AZURE_ENGINE,
+      CONFIG_KEYS.OCO_AZURE_DEPLOYMENT,
       ( typeof value === 'string' && value.match(/^[a-zA-Z0-9]+([-_][a-zA-Z0-9]+)*[a-zA-Z0-9]$/) ),
       `${value} is not a valid deployment name, it should only include alphanumeric characters, _ character and - character. It can't end with '_' or '-'.`
     );
@@ -207,7 +207,7 @@ export const getConfig = (): ConfigType | null => {
     OCO_EMOJI: process.env.OCO_EMOJI === 'true' ? true : false,
     OCO_MODEL: process.env.OCO_MODEL || 'gpt-3.5-turbo-16k',
     OCO_AZURE_API_VERSION: process.env.OCO_AZURE_API_VERSION || '2023-07-01-preview',
-    OCO_AZURE_ENGINE: process.env.OCO_AZURE_ENGINE || 'undefined',
+    OCO_AZURE_DEPLOYMENT: process.env.OCO_AZURE_DEPLOYMENT,
     OCO_LANGUAGE: process.env.OCO_LANGUAGE || 'en',
     OCO_MESSAGE_TEMPLATE_PLACEHOLDER:
       process.env.OCO_MESSAGE_TEMPLATE_PLACEHOLDER || '$msg',

@@ -41,7 +41,7 @@ if (!apiKey && command !== 'config' && mode !== CONFIG_MODES.set) {
 }
 
 const MODEL = config?.OCO_MODEL || 'gpt-3.5-turbo';
-const ENGINE = config?.OCO_AZURE_ENGINE;
+const DEPLOYMENT = config?.OCO_AZURE_DEPLOYMENT;
 
 class OpenAi {
   private openAiApiConfiguration = new OpenAiApiConfiguration({
@@ -61,7 +61,7 @@ class OpenAi {
           }
         };
         if (basePath) {
-          this.openAiApiConfiguration.basePath = basePath + 'openai/deployments/' + ENGINE;
+          this.openAiApiConfiguration.basePath = basePath + 'openai/deployments/' + DEPLOYMENT;
         }
         break;
       case 'openai':
