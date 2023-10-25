@@ -1,9 +1,13 @@
 ## DVLA Usage
 This is a fork of [OpenCommit](https://github.com/di-sukharev/opencommit).
-- It includes functionality to use Azure OpenAPI service as a backend.
+- It includes functionality to use Azure OpenAPI service as a backend originating from this [pull request](https://github.com/di-sukharev/opencommit/pull/167).
 - The package has been renamed to `@dvla/opencommit` for internal use.
-- The MIT License still applies and references the contribution from the original author ` Dima Sukharev`.
+- The MIT License still applies and references the contribution from the original author `Dima Sukharev`.
 
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
 
 <div align="center">
   <div>
@@ -95,7 +99,8 @@ OCO_MODEL=<either 'gpt-4', 'gpt-3.5-turbo-16k' (default), 'gpt-3.5-turbo-0613' o
 OCO_OPENAI_API_TYPE='azure'
 OCO_OPENAI_API_KEY=<your Azure API token>
 OCO_OPENAI_BASE_PATH=<azure path for example: https://EXAMPLE.openai.azure.com/>
-OCO_MODEL=<either 'gpt4-613' or 'turbo-613'>
+OCO_AZURE_ENGINE=<azure deployment name>
+OCO_AZURE_API_VERSION=<azure api version>
 ```
 
 ### Global config for all repos

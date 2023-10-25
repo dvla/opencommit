@@ -23,6 +23,7 @@ let maxTokens = config?.OCO_OPENAI_MAX_TOKENS;
 let basePath = config?.OCO_OPENAI_BASE_PATH;
 let apiKey = config?.OCO_OPENAI_API_KEY;
 let apiType = config?.OCO_OPENAI_API_TYPE || 'openai';
+let apiVersion = config?.OCO_AZURE_API_VERSION || '2023-07-01-preview';
 
 const [command, mode] = process.argv.slice(2);
 
@@ -40,6 +41,7 @@ if (!apiKey && command !== 'config' && mode !== CONFIG_MODES.set) {
 }
 
 const MODEL = config?.OCO_MODEL || 'gpt-3.5-turbo';
+const ENGINE = config?.OCO_AZURE_ENGINE;
 
 class OpenAi {
   private openAiApiConfiguration = new OpenAiApiConfiguration({
@@ -55,11 +57,11 @@ class OpenAi {
             "api-key": apiKey,
           },
           params: {
-            'api-version': '2023-07-01-preview',
+            'api-version': apiVersion,
           }
         };
         if (basePath) {
-          this.openAiApiConfiguration.basePath = basePath + 'openai/deployments/' + MODEL;
+          this.openAiApiConfiguration.basePath = basePath + 'openai/deployments/' + ENGINE;
         }
         break;
       case 'openai':

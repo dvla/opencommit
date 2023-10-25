@@ -20,10 +20,12 @@ export enum CONFIG_KEYS {
   OCO_OPENAI_API_TYPE = 'OCO_OPENAI_API_TYPE',
   OCO_DESCRIPTION = 'OCO_DESCRIPTION',
   OCO_EMOJI = 'OCO_EMOJI',
+  OCO_AZURE_ENGINE = 'OCO_AZURE_ENGINE',
   OCO_MODEL = 'OCO_MODEL',
   OCO_LANGUAGE = 'OCO_LANGUAGE',
   OCO_MESSAGE_TEMPLATE_PLACEHOLDER = 'OCO_MESSAGE_TEMPLATE_PLACEHOLDER',
-  OCO_PROMPT_MODULE = 'OCO_PROMPT_MODULE'
+  OCO_PROMPT_MODULE = 'OCO_PROMPT_MODULE',
+  OCO_AZURE_API_VERSION = 'OCO_AZURE_API_VERSION'
 }
 
 export const DEFAULT_MODEL_TOKEN_LIMIT = 4096;
@@ -58,7 +60,7 @@ export const configValidators = {
     validateConfig(
       CONFIG_KEYS.OCO_OPENAI_API_KEY,
       config[CONFIG_KEYS.OCO_OPENAI_BASE_PATH] || value.length === 51 || value.length === 32,
-      'Must be 51 or 32 characters long'
+      'Must be 51 (OpenAI) or 32 (Azure) characters long'
     );
 
     return value;
@@ -121,6 +123,15 @@ export const configValidators = {
     return value;
   },
 
+  [CONFIG_KEYS.OCO_AZURE_API_VERSION](value: any) {
+    validateConfig(
+      CONFIG_KEYS.OCO_AZURE_API_VERSION,
+      typeof value === 'string',
+      'Must be string'
+    );
+    return value;
+  },
+
   [CONFIG_KEYS.OCO_OPENAI_API_TYPE](value: any) {
     validateConfig(
       CONFIG_KEYS.OCO_OPENAI_API_TYPE,
@@ -142,14 +153,22 @@ export const configValidators = {
         'gpt-3.5-turbo',
         'gpt-4',
         'gpt-3.5-turbo-16k',
-        'turbo-613',
-        'gpt4-613',
         'gpt-3.5-turbo-0613'
       ].includes(value),
-      `${value} is not supported yet, use Azure deployed models: 'turbo-613','gpt4-613', or OpenAi models: 'gpt-4', 'gpt-3.5-turbo-16k' (default), 'gpt-3.5-turbo-0613' or 'gpt-3.5-turbo'`
+      `${value} is not supported yet, use models: 'gpt-4', 'gpt-3.5-turbo-16k' (default), 'gpt-3.5-turbo-0613' or 'gpt-3.5-turbo'`
     );
     return value;
   },
+
+  [CONFIG_KEYS.OCO_AZURE_ENGINE](value: any) {
+    validateConfig(
+      CONFIG_KEYS.OCO_AZURE_ENGINE,
+      ( typeof value === 'string' && value.match(/^[a-zA-Z0-9]+([-_][a-zA-Z0-9]+)*[a-zA-Z0-9]$/) ),
+      `${value} is not a valid deployment name, it should only include alphanumeric characters, _ character and - character. It can't end with '_' or '-'.`
+    );
+    return value;
+  },
+
   [CONFIG_KEYS.OCO_MESSAGE_TEMPLATE_PLACEHOLDER](value: any) {
     validateConfig(
       CONFIG_KEYS.OCO_MESSAGE_TEMPLATE_PLACEHOLDER,
@@ -183,9 +202,12 @@ export const getConfig = (): ConfigType | null => {
       ? Number(process.env.OCO_OPENAI_MAX_TOKENS)
       : undefined,
     OCO_OPENAI_BASE_PATH: process.env.OCO_OPENAI_BASE_PATH,
+    OCO_OPENAI_API_TYPE: process.env.OCO_OPENAI_API_TYPE || 'openai',
     OCO_DESCRIPTION: process.env.OCO_DESCRIPTION === 'true' ? true : false,
     OCO_EMOJI: process.env.OCO_EMOJI === 'true' ? true : false,
     OCO_MODEL: process.env.OCO_MODEL || 'gpt-3.5-turbo-16k',
+    OCO_AZURE_API_VERSION: process.env.OCO_AZURE_API_VERSION || '2023-07-01-preview',
+    OCO_AZURE_ENGINE: process.env.OCO_AZURE_ENGINE || 'undefined',
     OCO_LANGUAGE: process.env.OCO_LANGUAGE || 'en',
     OCO_MESSAGE_TEMPLATE_PLACEHOLDER:
       process.env.OCO_MESSAGE_TEMPLATE_PLACEHOLDER || '$msg',
