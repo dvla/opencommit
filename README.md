@@ -37,7 +37,8 @@ You can use OpenCommit by simply running it via the CLI like this `oco`. 2 secon
 
    MacOS may ask to run the command with `sudo` when installing a package globally.
 
-2. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys). Make sure that you add your payment details, so the API works.
+2. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys) or Azure.
+ For OpenAI - Make sure that you add your payment details, so the API works. And for Azure - ensure you set up the additional config in the [section](/README.md#configuration) below.
 
 3. Set the key to OpenCommit config:
 
@@ -70,15 +71,31 @@ oco
 Create a `.env` file and add OpenCommit config variables there like this:
 
 ```env
-OCO_OPENAI_API_KEY=<your OpenAI API token>
-OCO_OPENAI_MAX_TOKENS=<max response tokens from OpenAI API>
-OCO_OPENAI_BASE_PATH=<may be used to set proxy path to OpenAI api>
 OCO_DESCRIPTION=<postface a message with ~3 sentences description of the changes>
 OCO_EMOJI=<boolean, add GitMoji>
-OCO_MODEL=<either 'gpt-4', 'gpt-3.5-turbo-16k' (default), 'gpt-3.5-turbo-0613' or 'gpt-3.5-turbo'>
 OCO_LANGUAGE=<locale, scroll to the bottom to see options>
 OCO_MESSAGE_TEMPLATE_PLACEHOLDER=<message template placeholder, default: '$msg'>
 OCO_PROMPT_MODULE=<either conventional-commit or @commitlint, default: conventional-commit>
+OCO_OPENAI_MAX_TOKENS=<max response tokens (default: 500)>
+```
+
+In addition to these config options, OpenAI and Azure can be set up with the following config variables:
+
+#### OpenAI Config
+
+```env
+OCO_OPENAI_API_KEY=<your OpenAI API token>
+OCO_OPENAI_BASE_PATH=<may be used to set proxy path to OpenAI api>
+OCO_MODEL=<either 'gpt-4', 'gpt-3.5-turbo-16k' (default), 'gpt-3.5-turbo-0613' or 'gpt-3.5-turbo'>
+```
+
+#### Azure Config
+
+```env
+OCO_OPENAI_API_TYPE='azure'
+OCO_OPENAI_API_KEY=<your Azure API token>
+OCO_OPENAI_BASE_PATH=<azure path for example: https://EXAMPLE.openai.azure.com/>
+OCO_MODEL=<either 'gpt4-613' or 'turbo-613'>
 ```
 
 ### Global config for all repos

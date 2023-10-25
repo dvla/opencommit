@@ -22,6 +22,7 @@ const config = getConfig();
 let maxTokens = config?.OCO_OPENAI_MAX_TOKENS;
 let basePath = config?.OCO_OPENAI_BASE_PATH;
 let apiKey = config?.OCO_OPENAI_API_KEY;
+let apiType = config?.OCO_OPENAI_API_TYPE || 'openai';
 
 const [command, mode] = process.argv.slice(2);
 
@@ -47,8 +48,26 @@ class OpenAi {
   private openAI!: OpenAIApi;
 
   constructor() {
-    if (basePath) {
-      this.openAiApiConfiguration.basePath = basePath;
+    switch (apiType) {
+      case 'azure':
+        this.openAiApiConfiguration.baseOptions =  {
+          headers: {
+            "api-key": apiKey,
+          },
+          params: {
+            'api-version': '2023-07-01-preview',
+          }
+        };
+        if (basePath) {
+          this.openAiApiConfiguration.basePath = basePath + 'openai/deployments/' + MODEL;
+        }
+        break;
+      case 'openai':
+      default:
+        if (basePath) {
+          this.openAiApiConfiguration.basePath = basePath;
+        }
+        break;
     }
     this.openAI = new OpenAIApi(this.openAiApiConfiguration);
   }

@@ -17,6 +17,7 @@ export enum CONFIG_KEYS {
   OCO_OPENAI_API_KEY = 'OCO_OPENAI_API_KEY',
   OCO_OPENAI_MAX_TOKENS = 'OCO_OPENAI_MAX_TOKENS',
   OCO_OPENAI_BASE_PATH = 'OCO_OPENAI_BASE_PATH',
+  OCO_OPENAI_API_TYPE = 'OCO_OPENAI_API_TYPE',
   OCO_DESCRIPTION = 'OCO_DESCRIPTION',
   OCO_EMOJI = 'OCO_EMOJI',
   OCO_MODEL = 'OCO_MODEL',
@@ -51,13 +52,13 @@ export const configValidators = {
     validateConfig(CONFIG_KEYS.OCO_OPENAI_API_KEY, value, 'Cannot be empty');
     validateConfig(
       CONFIG_KEYS.OCO_OPENAI_API_KEY,
-      value.startsWith('sk-'),
-      'Must start with "sk-"'
+        value.startsWith('sk-') || value.match(/^[a-z0-9]{32}$/),
+      'Must start with "sk-" or a valid 32 character Azure OpenAI API key'
     );
     validateConfig(
       CONFIG_KEYS.OCO_OPENAI_API_KEY,
-      config[CONFIG_KEYS.OCO_OPENAI_BASE_PATH] || value.length === 51,
-      'Must be 51 characters long'
+      config[CONFIG_KEYS.OCO_OPENAI_BASE_PATH] || value.length === 51 || value.length === 32,
+      'Must be 51 or 32 characters long'
     );
 
     return value;
@@ -120,6 +121,20 @@ export const configValidators = {
     return value;
   },
 
+  [CONFIG_KEYS.OCO_OPENAI_API_TYPE](value: any) {
+    validateConfig(
+      CONFIG_KEYS.OCO_OPENAI_API_TYPE,
+      typeof value === 'string',
+      'Must be string'
+    );
+    validateConfig(
+      CONFIG_KEYS.OCO_OPENAI_API_TYPE,
+      value === 'azure' || value === 'openai' || value === '',
+      `${value} is not supported yet, use 'azure' or 'openai' (default)`
+    );
+    return value;
+  },
+
   [CONFIG_KEYS.OCO_MODEL](value: any) {
     validateConfig(
       CONFIG_KEYS.OCO_MODEL,
@@ -127,9 +142,11 @@ export const configValidators = {
         'gpt-3.5-turbo',
         'gpt-4',
         'gpt-3.5-turbo-16k',
+        'turbo-613',
+        'gpt4-613',
         'gpt-3.5-turbo-0613'
       ].includes(value),
-      `${value} is not supported yet, use 'gpt-4', 'gpt-3.5-turbo-16k' (default), 'gpt-3.5-turbo-0613' or 'gpt-3.5-turbo'`
+      `${value} is not supported yet, use Azure deployed models: 'turbo-613','gpt4-613', or OpenAi models: 'gpt-4', 'gpt-3.5-turbo-16k' (default), 'gpt-3.5-turbo-0613' or 'gpt-3.5-turbo'`
     );
     return value;
   },
