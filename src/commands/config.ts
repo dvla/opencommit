@@ -28,12 +28,20 @@ export enum CONFIG_KEYS {
   OCO_AZURE_API_VERSION = 'OCO_AZURE_API_VERSION'
 }
 
+export enum AI_TYPE {
+  OPENAI = 'openai',
+  AZURE = 'azure'
+}
+
 export const DEFAULT_MODEL_TOKEN_LIMIT = 4096;
 
 export enum CONFIG_MODES {
   get = 'get',
   set = 'set'
 }
+
+const OPENAI_API_KEY_REGEX = /^[a-z0-9]{32}$/;
+const AZURE_DEPLOYMENT_REGEX = /^[a-zA-Z0-9]+([-_][a-zA-Z0-9]+)*[a-zA-Z0-9]$/;
 
 const validateConfig = (
   key: string,
@@ -54,7 +62,7 @@ export const configValidators = {
     validateConfig(CONFIG_KEYS.OCO_OPENAI_API_KEY, value, 'Cannot be empty');
     validateConfig(
       CONFIG_KEYS.OCO_OPENAI_API_KEY,
-        value.startsWith('sk-') || value.match(/^[a-z0-9]{32}$/),
+      value.startsWith('sk-') || value.match(OPENAI_API_KEY_REGEX),
       'Must start with "sk-" or a valid 32 character Azure OpenAI API key'
     );
     validateConfig(
@@ -163,7 +171,7 @@ export const configValidators = {
   [CONFIG_KEYS.OCO_AZURE_DEPLOYMENT](value: any) {
     validateConfig(
       CONFIG_KEYS.OCO_AZURE_DEPLOYMENT,
-      ( typeof value === 'string' && value.match(/^[a-zA-Z0-9]+([-_][a-zA-Z0-9]+)*[a-zA-Z0-9]$/) ),
+      ( typeof value === 'string' && value.match(AZURE_DEPLOYMENT_REGEX) ),
       `${value} is not a valid deployment name, it should only include alphanumeric characters, _ character and - character. It can't end with '_' or '-'.`
     );
     return value;
