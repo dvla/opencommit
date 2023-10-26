@@ -11,6 +11,7 @@ import { intro, outro } from '@clack/prompts';
 
 import {
   CONFIG_MODES,
+  AI_TYPE,
   DEFAULT_MODEL_TOKEN_LIMIT,
   getConfig
 } from './commands/config';
@@ -19,13 +20,17 @@ import { tokenCount } from './utils/tokenCount';
 
 const config = getConfig();
 
-let maxTokens = config?.OCO_OPENAI_MAX_TOKENS;
-let basePath = config?.OCO_OPENAI_BASE_PATH;
-let apiKey = config?.OCO_OPENAI_API_KEY;
+const MAX_TOKENS = config?.OCO_OPENAI_MAX_TOKENS;
+const BASE_PATH = config?.OCO_OPENAI_BASE_PATH;
+const API_KEY = config?.OCO_OPENAI_API_KEY;
+const API_TYPE = config?.OCO_OPENAI_API_TYPE || AI_TYPE.OPENAI;
+const API_VERSION = config?.OCO_AZURE_API_VERSION || '2023-07-01-preview';
+const MODEL = config?.OCO_MODEL || 'gpt-3.5-turbo';
+const DEPLOYMENT = config?.OCO_AZURE_DEPLOYMENT;
 
 const [command, mode] = process.argv.slice(2);
 
-if (!apiKey && command !== 'config' && mode !== CONFIG_MODES.set) {
+if (!API_KEY && command !== 'config' && mode !== CONFIG_MODES.set) {
   intro('opencommit');
 
   outro(
@@ -37,18 +42,33 @@ if (!apiKey && command !== 'config' && mode !== CONFIG_MODES.set) {
 
   process.exit(1);
 }
-
-const MODEL = config?.OCO_MODEL || 'gpt-3.5-turbo';
-
 class OpenAi {
   private openAiApiConfiguration = new OpenAiApiConfiguration({
-    apiKey: apiKey
+    apiKey: API_KEY
   });
   private openAI!: OpenAIApi;
 
   constructor() {
-    if (basePath) {
-      this.openAiApiConfiguration.basePath = basePath;
+    switch (API_TYPE) {
+      case AI_TYPE.AZURE:
+        this.openAiApiConfiguration.baseOptions =  {
+          headers: {
+            "api-key": API_KEY,
+          },
+          params: {
+            'api-version': API_VERSION,
+          }
+        };
+        if (BASE_PATH) {
+          this.openAiApiConfiguration.basePath = BASE_PATH + 'openai/deployments/' + DEPLOYMENT;
+        }
+        break;
+      case AI_TYPE.OPENAI:
+      // fall through to default
+      default:
+        if (BASE_PATH) {
+          this.openAiApiConfiguration.basePath = BASE_PATH;
+        }
     }
     this.openAI = new OpenAIApi(this.openAiApiConfiguration);
   }
@@ -61,14 +81,14 @@ class OpenAi {
       messages,
       temperature: 0,
       top_p: 0.1,
-      max_tokens: maxTokens || 500
+      max_tokens: MAX_TOKENS || 500
     };
     try {
       const REQUEST_TOKENS = messages
         .map((msg) => tokenCount(msg.content) + 4)
         .reduce((a, b) => a + b, 0);
 
-      if (REQUEST_TOKENS > DEFAULT_MODEL_TOKEN_LIMIT - maxTokens) {
+      if (REQUEST_TOKENS > DEFAULT_MODEL_TOKEN_LIMIT - MAX_TOKENS) {
         throw new Error(GenerateCommitMessageErrorEnum.tooMuchTokens);
       }
 

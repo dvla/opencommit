@@ -17,12 +17,20 @@ export enum CONFIG_KEYS {
   OCO_OPENAI_API_KEY = 'OCO_OPENAI_API_KEY',
   OCO_OPENAI_MAX_TOKENS = 'OCO_OPENAI_MAX_TOKENS',
   OCO_OPENAI_BASE_PATH = 'OCO_OPENAI_BASE_PATH',
+  OCO_OPENAI_API_TYPE = 'OCO_OPENAI_API_TYPE',
   OCO_DESCRIPTION = 'OCO_DESCRIPTION',
   OCO_EMOJI = 'OCO_EMOJI',
+  OCO_AZURE_DEPLOYMENT = 'OCO_AZURE_DEPLOYMENT',
   OCO_MODEL = 'OCO_MODEL',
   OCO_LANGUAGE = 'OCO_LANGUAGE',
   OCO_MESSAGE_TEMPLATE_PLACEHOLDER = 'OCO_MESSAGE_TEMPLATE_PLACEHOLDER',
-  OCO_PROMPT_MODULE = 'OCO_PROMPT_MODULE'
+  OCO_PROMPT_MODULE = 'OCO_PROMPT_MODULE',
+  OCO_AZURE_API_VERSION = 'OCO_AZURE_API_VERSION'
+}
+
+export enum AI_TYPE {
+  OPENAI = 'openai',
+  AZURE = 'azure'
 }
 
 export const DEFAULT_MODEL_TOKEN_LIMIT = 4096;
@@ -31,6 +39,9 @@ export enum CONFIG_MODES {
   get = 'get',
   set = 'set'
 }
+
+const OPENAI_API_KEY_REGEX = /^[a-z0-9]{32}$/;
+const AZURE_DEPLOYMENT_REGEX = /^[a-zA-Z0-9]+([-_][a-zA-Z0-9]+)*[a-zA-Z0-9]$/;
 
 const validateConfig = (
   key: string,
@@ -51,13 +62,13 @@ export const configValidators = {
     validateConfig(CONFIG_KEYS.OCO_OPENAI_API_KEY, value, 'Cannot be empty');
     validateConfig(
       CONFIG_KEYS.OCO_OPENAI_API_KEY,
-      value.startsWith('sk-'),
-      'Must start with "sk-"'
+      value.startsWith('sk-') || value.match(OPENAI_API_KEY_REGEX),
+      'Must start with "sk-" or a valid 32 character Azure OpenAI API key'
     );
     validateConfig(
       CONFIG_KEYS.OCO_OPENAI_API_KEY,
-      config[CONFIG_KEYS.OCO_OPENAI_BASE_PATH] || value.length === 51,
-      'Must be 51 characters long'
+      config[CONFIG_KEYS.OCO_OPENAI_BASE_PATH] || value.length === 51 || value.length === 32,
+      'Must be 51 (OpenAI) or 32 (Azure) characters long'
     );
 
     return value;
@@ -120,6 +131,29 @@ export const configValidators = {
     return value;
   },
 
+  [CONFIG_KEYS.OCO_AZURE_API_VERSION](value: any) {
+    validateConfig(
+      CONFIG_KEYS.OCO_AZURE_API_VERSION,
+      typeof value === 'string',
+      'Must be string'
+    );
+    return value;
+  },
+
+  [CONFIG_KEYS.OCO_OPENAI_API_TYPE](value: any) {
+    validateConfig(
+      CONFIG_KEYS.OCO_OPENAI_API_TYPE,
+      typeof value === 'string',
+      'Must be string'
+    );
+    validateConfig(
+      CONFIG_KEYS.OCO_OPENAI_API_TYPE,
+      value === 'azure' || value === 'openai' || value === '',
+      `${value} is not supported yet, use 'azure' or 'openai' (default)`
+    );
+    return value;
+  },
+
   [CONFIG_KEYS.OCO_MODEL](value: any) {
     validateConfig(
       CONFIG_KEYS.OCO_MODEL,
@@ -129,10 +163,20 @@ export const configValidators = {
         'gpt-3.5-turbo-16k',
         'gpt-3.5-turbo-0613'
       ].includes(value),
-      `${value} is not supported yet, use 'gpt-4', 'gpt-3.5-turbo-16k' (default), 'gpt-3.5-turbo-0613' or 'gpt-3.5-turbo'`
+      `${value} is not supported yet, use models: 'gpt-4', 'gpt-3.5-turbo-16k' (default), 'gpt-3.5-turbo-0613' or 'gpt-3.5-turbo'`
     );
     return value;
   },
+
+  [CONFIG_KEYS.OCO_AZURE_DEPLOYMENT](value: any) {
+    validateConfig(
+      CONFIG_KEYS.OCO_AZURE_DEPLOYMENT,
+      ( typeof value === 'string' && value.match(AZURE_DEPLOYMENT_REGEX) ),
+      `${value} is not a valid deployment name, it should only include alphanumeric characters, _ character and - character. It can't end with '_' or '-'.`
+    );
+    return value;
+  },
+
   [CONFIG_KEYS.OCO_MESSAGE_TEMPLATE_PLACEHOLDER](value: any) {
     validateConfig(
       CONFIG_KEYS.OCO_MESSAGE_TEMPLATE_PLACEHOLDER,
@@ -166,9 +210,12 @@ export const getConfig = (): ConfigType | null => {
       ? Number(process.env.OCO_OPENAI_MAX_TOKENS)
       : undefined,
     OCO_OPENAI_BASE_PATH: process.env.OCO_OPENAI_BASE_PATH,
+    OCO_OPENAI_API_TYPE: process.env.OCO_OPENAI_API_TYPE || 'openai',
     OCO_DESCRIPTION: process.env.OCO_DESCRIPTION === 'true' ? true : false,
     OCO_EMOJI: process.env.OCO_EMOJI === 'true' ? true : false,
     OCO_MODEL: process.env.OCO_MODEL || 'gpt-3.5-turbo-16k',
+    OCO_AZURE_API_VERSION: process.env.OCO_AZURE_API_VERSION || '2023-07-01-preview',
+    OCO_AZURE_DEPLOYMENT: process.env.OCO_AZURE_DEPLOYMENT,
     OCO_LANGUAGE: process.env.OCO_LANGUAGE || 'en',
     OCO_MESSAGE_TEMPLATE_PLACEHOLDER:
       process.env.OCO_MESSAGE_TEMPLATE_PLACEHOLDER || '$msg',
