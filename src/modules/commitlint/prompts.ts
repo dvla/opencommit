@@ -259,7 +259,8 @@ Example Git Diff is to follow:`
  */
 const INIT_MAIN_PROMPT = (
   language: string,
-  prompts: string[]
+  prompts: string[],
+  issueID: string
 ): ChatCompletionRequestMessage => ({
   role: ChatCompletionRequestMessageRoleEnum.System,
   // prettier-ignore
@@ -267,7 +268,9 @@ const INIT_MAIN_PROMPT = (
 ${config?.OCO_EMOJI ? 'Use GitMoji convention to preface the commit.' : 'Do not preface the commit with anything.'}
 ${config?.OCO_DESCRIPTION ? 'Add a short description of WHY the changes are done after the commit message. Don\'t start it with "This commit", just describe the changes.' : "Don't add any descriptions to the commit, only commit message."}
 Use the present tense. Use ${language} to answer.
-    
+
+You must also include the JIRA ID: ${issueID} in the commit message title.
+
 You will strictly follow the following conventions to generate the content of the commit message:
 - ${prompts.join('\n- ')}
 
