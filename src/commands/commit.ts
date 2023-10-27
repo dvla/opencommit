@@ -182,18 +182,24 @@ export async function commit(
     process.exit(1);
   }
 
-  const issueIDSpinner = spinner();
+  let issueID;
 
-  issueIDSpinner.start('Confirming Issue ID');
+  if (config?.OCO_ISSUE_ID) {
+    const issueIDSpinner = spinner();
 
-  const issueID = await text({
-    message: 'Please enter an Issue ID',
-    validate(value) {
-      if (value.length === 0) return `Value is required!`;
-    },
-  });
+    issueIDSpinner.start('Confirming Issue ID');
 
-  issueIDSpinner.stop('Issue ID: ' + issueID.toString());
+    issueID = await text({
+      message: 'Please enter an Issue ID',
+      validate(value) {
+        if (value.length === 0) return `Value is required!`;
+      },
+    });
+
+    issueIDSpinner.stop('Issue ID: ' + issueID.toString());
+  } else {
+    issueID = '';
+  }
 
   const stagedFilesSpinner = spinner();
 

@@ -31,8 +31,11 @@ const INIT_MAIN_PROMPT = (language: string, issueID: string): ChatCompletionRequ
         ? 'Add a short description of WHY the changes are done after the commit message. Don\'t start it with "This commit", just describe the changes.'
         : "Don't add any descriptions to the commit, only commit message."
     }
-    
-    You must also include the Issue ID: ${issueID} in the commit message title.
+    ${
+      config?.OCO_ISSUE_ID
+        ? `You must also include the Issue ID: ${issueID} in the commit message title.`
+        : 'Don\'t include an Issue ID in the commit message title.'
+    }
     Use the present tense. Lines must not be longer than 74 characters. Use ${language} for the commit message.`
 });
 
