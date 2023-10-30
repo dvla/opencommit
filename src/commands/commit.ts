@@ -182,14 +182,14 @@ export async function commit(
     process.exit(1);
   }
 
-  let issueID;
+  let issueID = '';
 
   if (config?.OCO_ISSUE_ENABLED) {
     const issueIDSpinner = spinner();
 
     issueIDSpinner.start('Confirming Issue ID');
 
-    issueID = await text({
+    const idInput = await text({
       message: 'Please enter an Issue ID',
       initialValue: config?.OCO_ISSUE_PREFIX,
       validate(value) {
@@ -197,9 +197,8 @@ export async function commit(
       },
     });
 
-    issueIDSpinner.stop('Issue ID: ' + issueID.toString());
-  } else {
-    issueID = '';
+    issueID = idInput.toString();
+    issueIDSpinner.stop('Issue ID: ' + issueID);
   }
 
   const stagedFilesSpinner = spinner();
@@ -248,7 +247,7 @@ export async function commit(
     generateCommitMessageFromGitDiff(
       await getDiff({ files: stagedFiles }),
       extraArgs,
-      issueID.toString()
+      issueID
     )
   );
 

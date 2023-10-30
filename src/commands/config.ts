@@ -279,7 +279,7 @@ export const getConfig = (): ConfigType | null => {
     }
   }
 
-  //Sets OCO_ISSUE_ENABLED to true if prefix has been set
+  // Sets OCO_ISSUE_ENABLED to true if prefix has been set
   if (config.OCO_ISSUE_PREFIX) {
     config.OCO_ISSUE_ENABLED = true;
   }
