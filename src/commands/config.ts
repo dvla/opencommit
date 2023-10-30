@@ -242,6 +242,7 @@ export const getConfig = (): ConfigType | null => {
     OCO_MESSAGE_TEMPLATE_PLACEHOLDER:
       process.env.OCO_MESSAGE_TEMPLATE_PLACEHOLDER || '$msg',
     OCO_PROMPT_MODULE: process.env.OCO_PROMPT_MODULE || 'conventional-commit'
+    
   };
 
   const configExists = existsSync(configPath);
@@ -249,6 +250,7 @@ export const getConfig = (): ConfigType | null => {
 
   const configFile = readFileSync(configPath, 'utf8');
   const config = iniParse(configFile);
+  
 
   for (const configKey of Object.keys(config)) {
     if (
@@ -275,6 +277,11 @@ export const getConfig = (): ConfigType | null => {
       );
       process.exit(1);
     }
+  }
+
+  //Sets OCO_ISSUE_ID to true if prefix has been set
+  if (config.OCO_ISSUE_ID_PREFIX) {
+    config.OCO_ISSUE_ID = true;
   }
 
   return config;
