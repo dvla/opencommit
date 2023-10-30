@@ -32,7 +32,7 @@ const INIT_MAIN_PROMPT = (language: string, issueID: string): ChatCompletionRequ
         : "Don't add any descriptions to the commit, only commit message."
     }
     ${
-      config?.OCO_ISSUE_ID
+      config?.OCO_ISSUE_ENABLED
         ? `You must also include the Issue ID: ${issueID} in the commit message title.`
         : 'Don\'t include an Issue ID in the commit message title.'
     }

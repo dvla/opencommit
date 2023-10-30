@@ -26,8 +26,8 @@ export enum CONFIG_KEYS {
   OCO_MESSAGE_TEMPLATE_PLACEHOLDER = 'OCO_MESSAGE_TEMPLATE_PLACEHOLDER',
   OCO_PROMPT_MODULE = 'OCO_PROMPT_MODULE',
   OCO_AZURE_API_VERSION = 'OCO_AZURE_API_VERSION',
-  OCO_ISSUE_ID = 'OCO_ISSUE_ID',
-  OCO_ISSUE_ID_PREFIX = 'OCO_ISSUE_ID_PREFIX'
+  OCO_ISSUE_ENABLED= 'OCO_ISSUE_ENABLED',
+  OCO_ISSUE_PREFIX = 'OCO_ISSUE_PREFIX'
 }
 
 export enum AI_TYPE {
@@ -114,9 +114,9 @@ export const configValidators = {
     return value;
   },
 
-  [CONFIG_KEYS.OCO_ISSUE_ID](value: any) {
+  [CONFIG_KEYS.OCO_ISSUE_ENABLED](value: any) {
     validateConfig(
-      CONFIG_KEYS.OCO_ISSUE_ID,
+      CONFIG_KEYS.OCO_ISSUE_ENABLED,
       typeof value === 'boolean',
       'Must be true or false'
     );
@@ -124,9 +124,9 @@ export const configValidators = {
     return value;
   },
 
-  [CONFIG_KEYS.OCO_ISSUE_ID_PREFIX](value: any) {
+  [CONFIG_KEYS.OCO_ISSUE_PREFIX](value: any) {
     validateConfig(
-      CONFIG_KEYS.OCO_ISSUE_ID_PREFIX,
+      CONFIG_KEYS.OCO_ISSUE_PREFIX,
       typeof value === 'string',
       'Must be string'
     );
@@ -233,8 +233,8 @@ export const getConfig = (): ConfigType | null => {
     OCO_OPENAI_API_TYPE: process.env.OCO_OPENAI_API_TYPE || 'openai',
     OCO_DESCRIPTION: process.env.OCO_DESCRIPTION === 'true' ? true : false,
     OCO_EMOJI: process.env.OCO_EMOJI === 'true' ? true : false,
-    OCO_ISSUE_ID: process.env.OCO_ISSUE_ID === 'true' ? true : false,
-    OCO_ISSUE_ID_PREFIX: process.env.OCO_ISSUE_ID_PREFIX || '',
+    OCO_ISSUE_ENABLED: process.env.OCO_ISSUE_ENABLED=== 'true' ? true : false,
+    OCO_ISSUE_PREFIX: process.env.OCO_ISSUE_PREFIX || '',
     OCO_MODEL: process.env.OCO_MODEL || 'gpt-3.5-turbo-16k',
     OCO_AZURE_API_VERSION: process.env.OCO_AZURE_API_VERSION || '2023-07-01-preview',
     OCO_AZURE_DEPLOYMENT: process.env.OCO_AZURE_DEPLOYMENT,
@@ -279,9 +279,9 @@ export const getConfig = (): ConfigType | null => {
     }
   }
 
-  //Sets OCO_ISSUE_ID to true if prefix has been set
-  if (config.OCO_ISSUE_ID_PREFIX) {
-    config.OCO_ISSUE_ID = true;
+  //Sets OCO_ISSUE_ENABLED to true if prefix has been set
+  if (config.OCO_ISSUE_PREFIX) {
+    config.OCO_ISSUE_ENABLED = true;
   }
 
   return config;

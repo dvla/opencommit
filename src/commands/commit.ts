@@ -184,14 +184,14 @@ export async function commit(
 
   let issueID;
 
-  if (config?.OCO_ISSUE_ID) {
+  if (config?.OCO_ISSUE_ENABLED) {
     const issueIDSpinner = spinner();
 
     issueIDSpinner.start('Confirming Issue ID');
 
     issueID = await text({
       message: 'Please enter an Issue ID',
-      initialValue: config?.OCO_ISSUE_ID_PREFIX,
+      initialValue: config?.OCO_ISSUE_PREFIX,
       validate(value) {
         if (value.length === 0) return `Value is required!`;
       },

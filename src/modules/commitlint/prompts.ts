@@ -269,7 +269,7 @@ ${config?.OCO_EMOJI ? 'Use GitMoji convention to preface the commit.' : 'Do not 
 ${config?.OCO_DESCRIPTION ? 'Add a short description of WHY the changes are done after the commit message. Don\'t start it with "This commit", just describe the changes.' : "Don't add any descriptions to the commit, only commit message."}
 Use the present tense. Use ${language} to answer.
 ${
-  config?.OCO_ISSUE_ID
+  config?.OCO_ISSUE_ENABLED
     ? `You must also include the Issue ID: ${issueID} in the commit message title.`
     : 'Don\'t include the Issue ID in the commit message title.'
 }
