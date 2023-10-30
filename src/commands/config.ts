@@ -25,7 +25,9 @@ export enum CONFIG_KEYS {
   OCO_LANGUAGE = 'OCO_LANGUAGE',
   OCO_MESSAGE_TEMPLATE_PLACEHOLDER = 'OCO_MESSAGE_TEMPLATE_PLACEHOLDER',
   OCO_PROMPT_MODULE = 'OCO_PROMPT_MODULE',
-  OCO_AZURE_API_VERSION = 'OCO_AZURE_API_VERSION'
+  OCO_AZURE_API_VERSION = 'OCO_AZURE_API_VERSION',
+  OCO_ISSUE_ENABLED = 'OCO_ISSUE_ENABLED',
+  OCO_ISSUE_PREFIX = 'OCO_ISSUE_PREFIX'
 }
 
 export enum AI_TYPE {
@@ -70,7 +72,6 @@ export const configValidators = {
       config[CONFIG_KEYS.OCO_OPENAI_BASE_PATH] || value.length === 51 || value.length === 32,
       'Must be 51 (OpenAI) or 32 (Azure) characters long'
     );
-
     return value;
   },
 
@@ -110,6 +111,25 @@ export const configValidators = {
       'Must be true or false'
     );
 
+    return value;
+  },
+
+  [CONFIG_KEYS.OCO_ISSUE_ENABLED](value: any) {
+    validateConfig(
+      CONFIG_KEYS.OCO_ISSUE_ENABLED,
+      typeof value === 'boolean',
+      'Must be true or false'
+    );
+
+    return value;
+  },
+
+  [CONFIG_KEYS.OCO_ISSUE_PREFIX](value: any) {
+    validateConfig(
+      CONFIG_KEYS.OCO_ISSUE_PREFIX,
+      typeof value === 'string',
+      'Must be string'
+    );
     return value;
   },
 
@@ -213,6 +233,8 @@ export const getConfig = (): ConfigType | null => {
     OCO_OPENAI_API_TYPE: process.env.OCO_OPENAI_API_TYPE || 'openai',
     OCO_DESCRIPTION: process.env.OCO_DESCRIPTION === 'true' ? true : false,
     OCO_EMOJI: process.env.OCO_EMOJI === 'true' ? true : false,
+    OCO_ISSUE_ENABLED: process.env.OCO_ISSUE_ENABLED=== 'true' ? true : false,
+    OCO_ISSUE_PREFIX: process.env.OCO_ISSUE_PREFIX || '',
     OCO_MODEL: process.env.OCO_MODEL || 'gpt-3.5-turbo-16k',
     OCO_AZURE_API_VERSION: process.env.OCO_AZURE_API_VERSION || '2023-07-01-preview',
     OCO_AZURE_DEPLOYMENT: process.env.OCO_AZURE_DEPLOYMENT,
@@ -220,6 +242,7 @@ export const getConfig = (): ConfigType | null => {
     OCO_MESSAGE_TEMPLATE_PLACEHOLDER:
       process.env.OCO_MESSAGE_TEMPLATE_PLACEHOLDER || '$msg',
     OCO_PROMPT_MODULE: process.env.OCO_PROMPT_MODULE || 'conventional-commit'
+    
   };
 
   const configExists = existsSync(configPath);
@@ -227,6 +250,7 @@ export const getConfig = (): ConfigType | null => {
 
   const configFile = readFileSync(configPath, 'utf8');
   const config = iniParse(configFile);
+  
 
   for (const configKey of Object.keys(config)) {
     if (
@@ -253,6 +277,11 @@ export const getConfig = (): ConfigType | null => {
       );
       process.exit(1);
     }
+  }
+
+  // Sets OCO_ISSUE_ENABLED to true if prefix has been set
+  if (config.OCO_ISSUE_PREFIX) {
+    config.OCO_ISSUE_ENABLED = true;
   }
 
   return config;

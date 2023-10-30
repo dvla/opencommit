@@ -18,7 +18,7 @@ const translation = i18n[(config?.OCO_LANGUAGE as I18nLocals) || 'en'];
 export const IDENTITY =
   'You are to act as the author of a commit message in git.';
 
-const INIT_MAIN_PROMPT = (language: string): ChatCompletionRequestMessage => ({
+const INIT_MAIN_PROMPT = (language: string, issueID: string): ChatCompletionRequestMessage => ({
   role: ChatCompletionRequestMessageRoleEnum.System,
   content: `${IDENTITY} Your mission is to create clean and comprehensive commit messages as per the conventional commit convention and explain WHAT were the changes and mainly WHY the changes were done. I'll send you an output of 'git diff --staged' command, and you are to convert it into a commit message.
     ${
@@ -30,6 +30,11 @@ const INIT_MAIN_PROMPT = (language: string): ChatCompletionRequestMessage => ({
       config?.OCO_DESCRIPTION
         ? 'Add a short description of WHY the changes are done after the commit message. Don\'t start it with "This commit", just describe the changes.'
         : "Don't add any descriptions to the commit, only commit message."
+    }
+    ${
+      config?.OCO_ISSUE_ENABLED
+        ? `You must also include the Issue ID: ${issueID} in the commit message title.`
+        : 'Don\'t include an Issue ID in the commit message title.'
     }
     Use the present tense. Lines must not be longer than 74 characters. Use ${language} for the commit message.`
 });
@@ -71,7 +76,7 @@ ${config?.OCO_EMOJI ? '✨ ' : ''}${translation.commitFeat}
 ${config?.OCO_DESCRIPTION ? translation.commitDescription : ''}`
 });
 
-export const getMainCommitPrompt = async (): Promise<
+export const getMainCommitPrompt = async (issueID: string): Promise<
   ChatCompletionRequestMessage[]
 > => {
   switch (config?.OCO_PROMPT_MODULE) {
@@ -89,7 +94,8 @@ export const getMainCommitPrompt = async (): Promise<
       return [
         commitlintPrompts.INIT_MAIN_PROMPT(
           translation.localLanguage,
-          commitLintConfig.prompts
+          commitLintConfig.prompts,
+          issueID
         ),
         INIT_DIFF_PROMPT,
         INIT_CONSISTENCY_PROMPT(
@@ -102,7 +108,7 @@ export const getMainCommitPrompt = async (): Promise<
     default:
       // conventional-commit
       return [
-        INIT_MAIN_PROMPT(translation.localLanguage),
+        INIT_MAIN_PROMPT(translation.localLanguage,issueID),
         INIT_DIFF_PROMPT,
         INIT_CONSISTENCY_PROMPT(translation)
       ];

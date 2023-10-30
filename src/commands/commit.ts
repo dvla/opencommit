@@ -8,7 +8,8 @@ import {
   multiselect,
   outro,
   select,
-  spinner
+  spinner,
+  text
 } from '@clack/prompts';
 
 import { generateCommitMessageByDiff } from '../generateCommitMessageFromGitDiff';
@@ -40,14 +41,15 @@ const checkMessageTemplate = (extraArgs: string[]): string | false => {
 
 const generateCommitMessageFromGitDiff = async (
   diff: string,
-  extraArgs: string[]
+  extraArgs: string[],
+  issueID: string
 ): Promise<void> => {
   await assertGitRepo();
   const commitSpinner = spinner();
   commitSpinner.start('Generating the commit message');
 
   try {
-    let commitMessage = await generateCommitMessageByDiff(diff);
+    let commitMessage = await generateCommitMessageByDiff(diff, issueID);
 
     const messageTemplate = checkMessageTemplate(extraArgs);
     if (
@@ -180,6 +182,25 @@ export async function commit(
     process.exit(1);
   }
 
+  let issueID = '';
+
+  if (config?.OCO_ISSUE_ENABLED) {
+    const issueIDSpinner = spinner();
+
+    issueIDSpinner.start('Confirming Issue ID');
+
+    const idInput = await text({
+      message: 'Please enter an Issue ID',
+      initialValue: config?.OCO_ISSUE_PREFIX,
+      validate(value) {
+        if (value.length === 0) return `Value is required!`;
+      },
+    });
+
+    issueID = idInput.toString();
+    issueIDSpinner.stop('Issue ID: ' + issueID);
+  }
+
   const stagedFilesSpinner = spinner();
 
   stagedFilesSpinner.start('Counting staged files');
@@ -225,7 +246,8 @@ export async function commit(
   const [, generateCommitError] = await trytm(
     generateCommitMessageFromGitDiff(
       await getDiff({ files: stagedFiles }),
-      extraArgs
+      extraArgs,
+      issueID
     )
   );
 
