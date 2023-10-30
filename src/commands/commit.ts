@@ -191,6 +191,7 @@ export async function commit(
 
     issueID = await text({
       message: 'Please enter an Issue ID',
+      initialValue: config?.OCO_ISSUE_ID_PREFIX,
       validate(value) {
         if (value.length === 0) return `Value is required!`;
       },

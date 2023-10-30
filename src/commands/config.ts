@@ -26,7 +26,8 @@ export enum CONFIG_KEYS {
   OCO_MESSAGE_TEMPLATE_PLACEHOLDER = 'OCO_MESSAGE_TEMPLATE_PLACEHOLDER',
   OCO_PROMPT_MODULE = 'OCO_PROMPT_MODULE',
   OCO_AZURE_API_VERSION = 'OCO_AZURE_API_VERSION',
-  OCO_ISSUE_ID = 'OCO_ISSUE_ID'
+  OCO_ISSUE_ID = 'OCO_ISSUE_ID',
+  OCO_ISSUE_ID_PREFIX = 'OCO_ISSUE_ID_PREFIX'
 }
 
 export enum AI_TYPE {
@@ -71,7 +72,6 @@ export const configValidators = {
       config[CONFIG_KEYS.OCO_OPENAI_BASE_PATH] || value.length === 51 || value.length === 32,
       'Must be 51 (OpenAI) or 32 (Azure) characters long'
     );
-
     return value;
   },
 
@@ -121,6 +121,15 @@ export const configValidators = {
       'Must be true or false'
     );
 
+    return value;
+  },
+
+  [CONFIG_KEYS.OCO_ISSUE_ID_PREFIX](value: any) {
+    validateConfig(
+      CONFIG_KEYS.OCO_ISSUE_ID_PREFIX,
+      typeof value === 'string',
+      'Must be string'
+    );
     return value;
   },
 
@@ -225,6 +234,7 @@ export const getConfig = (): ConfigType | null => {
     OCO_DESCRIPTION: process.env.OCO_DESCRIPTION === 'true' ? true : false,
     OCO_EMOJI: process.env.OCO_EMOJI === 'true' ? true : false,
     OCO_ISSUE_ID: process.env.OCO_ISSUE_ID === 'true' ? true : false,
+    OCO_ISSUE_ID_PREFIX: process.env.OCO_ISSUE_ID_PREFIX || '',
     OCO_MODEL: process.env.OCO_MODEL || 'gpt-3.5-turbo-16k',
     OCO_AZURE_API_VERSION: process.env.OCO_AZURE_API_VERSION || '2023-07-01-preview',
     OCO_AZURE_DEPLOYMENT: process.env.OCO_AZURE_DEPLOYMENT,
