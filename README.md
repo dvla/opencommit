@@ -75,12 +75,14 @@ oco
 Create a `.env` file and add OpenCommit config variables there like this:
 
 ```env
-OCO_DESCRIPTION=<postface a message with ~3 sentences description of the changes>
+OCO_DESCRIPTION=<boolean, postface a message with ~3 sentences description of the changes>
 OCO_EMOJI=<boolean, add GitMoji>
 OCO_LANGUAGE=<locale, scroll to the bottom to see options>
 OCO_MESSAGE_TEMPLATE_PLACEHOLDER=<message template placeholder, default: '$msg'>
 OCO_PROMPT_MODULE=<either conventional-commit or @commitlint, default: conventional-commit>
 OCO_OPENAI_MAX_TOKENS=<max response tokens (default: 500)>
+OCO_ISSUE_ID=<boolean, issue ID included within commit message>
+OCO_ISSUE_ID_PREFIX=<optional prefix for issue ID, eg. 'ABC-'>
 ```
 
 In addition to these config options, OpenAI and Azure can be set up with the following config variables:
