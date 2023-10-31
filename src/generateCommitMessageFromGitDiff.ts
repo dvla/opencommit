@@ -55,8 +55,8 @@ export const generateCommitMessageByDiff = async (
     if (tokenCount(diff) >= MAX_REQUEST_TOKENS) {
       const commitMessagePromises = await getCommitMsgsPromisesFromFileDiffs(
         diff,
-        issueID,
-        MAX_REQUEST_TOKENS
+        MAX_REQUEST_TOKENS,
+        issueID
       );
 
       const commitMessages = [];
@@ -65,7 +65,14 @@ export const generateCommitMessageByDiff = async (
         await delay(2000);
       }
 
-      return commitMessages.join('\n\n');
+      const commitMessagesNewLines = commitMessages.join('\n\n');
+
+      const combinedCommitMessage = await api.generateSingleCommitMessage(commitMessagesNewLines);
+
+      if (!combinedCommitMessage)
+      throw new Error(GenerateCommitMessageErrorEnum.emptyMessage);
+
+      return combinedCommitMessage;
     }
 
     const messages = await generateCommitMessageChatCompletionPrompt(diff, issueID);

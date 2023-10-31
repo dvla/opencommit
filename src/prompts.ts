@@ -73,8 +73,7 @@ const INIT_CONSISTENCY_PROMPT = (
   translation: ConsistencyPrompt
 ): ChatCompletionRequestMessage => ({
   role: ChatCompletionRequestMessageRoleEnum.Assistant,
-  content: `${config?.OCO_EMOJI ? '🐛 ' : ''}${translation.commitFix}
-${config?.OCO_EMOJI ? '✨ ' : ''}${translation.commitFeat}
+  content: `${config?.OCO_EMOJI ? '🐛 ' : ''}${translation.commitFeat}
 ${config?.OCO_DESCRIPTION ? translation.commitDescription : ''}`
 });
 
