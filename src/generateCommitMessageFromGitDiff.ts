@@ -65,7 +65,7 @@ export const generateCommitMessageByDiff = async (
         await delay(2000);
       }
 
-      const commitMessagesNewLines = commitMessages.join('\n\n');
+      const commitMessagesNewLines = commitMessages.join('\n');
 
       const combinedCommitMessage = await api.generateSingleCommitMessage(commitMessagesNewLines);
 
