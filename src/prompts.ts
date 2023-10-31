@@ -20,7 +20,9 @@ export const IDENTITY =
 
 const INIT_MAIN_PROMPT = (language: string, issueID: string): ChatCompletionRequestMessage => ({
   role: ChatCompletionRequestMessageRoleEnum.System,
-  content: `${IDENTITY} Your mission is to create clean and comprehensive commit messages as per the conventional commit convention and explain WHAT were the changes and mainly WHY the changes were done. I'll send you an output of 'git diff --staged' command, and you are to convert it into a commit message.
+  content: `${IDENTITY} Your mission is to create a clean and comprehensive commit message as per the conventional commit convention and explain WHAT were the changes and mainly WHY the changes were done. 
+  I'll send you an output of 'git diff --staged' command, and you are to convert it into a commit message. 
+  Only produce a single commit message for all files combined.
     ${
       config?.OCO_EMOJI
         ? 'Use GitMoji convention to preface the commit.'
@@ -28,15 +30,15 @@ const INIT_MAIN_PROMPT = (language: string, issueID: string): ChatCompletionRequ
     }
     ${
       config?.OCO_DESCRIPTION
-        ? 'Add a short description of WHY the changes are done after the commit message. Don\'t start it with "This commit", just describe the changes.'
-        : "Don't add any descriptions to the commit, only commit message."
+        ? 'Add a short description of WHY the changes are done after the single commit message title. Don\'t start it with "This commit", just describe the changes.'
+        : "Your response should just be one line with a commit message title and no description."
     }
     ${
       config?.OCO_ISSUE_ENABLED
         ? `You must also include the Issue ID: ${issueID} in the commit message title.`
         : 'Don\'t include an Issue ID in the commit message title.'
     }
-    Use the present tense. Lines must not be longer than 74 characters. Use ${language} for the commit message.`
+    Use the present tense. Lines must not be longer than 72 characters. Use ${language} for the commit message.`
 });
 
 export const INIT_DIFF_PROMPT: ChatCompletionRequestMessage = {
