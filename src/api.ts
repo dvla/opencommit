@@ -17,6 +17,7 @@ import {
 } from './commands/config';
 import { GenerateCommitMessageErrorEnum } from './generateCommitMessageFromGitDiff';
 import { tokenCount } from './utils/tokenCount';
+import { IDENTITY } from './prompts';
 
 const config = getConfig();
 
@@ -51,16 +52,17 @@ class OpenAi {
   constructor() {
     switch (API_TYPE) {
       case AI_TYPE.AZURE:
-        this.openAiApiConfiguration.baseOptions =  {
+        this.openAiApiConfiguration.baseOptions = {
           headers: {
-            "api-key": API_KEY,
+            'api-key': API_KEY
           },
           params: {
-            'api-version': API_VERSION,
+            'api-version': API_VERSION
           }
         };
         if (BASE_PATH) {
-          this.openAiApiConfiguration.basePath = BASE_PATH + 'openai/deployments/' + DEPLOYMENT;
+          this.openAiApiConfiguration.basePath =
+            BASE_PATH + 'openai/deployments/' + DEPLOYMENT;
         }
         break;
       case AI_TYPE.OPENAI:
@@ -72,6 +74,71 @@ class OpenAi {
     }
     this.openAI = new OpenAIApi(this.openAiApiConfiguration);
   }
+
+  public generateSingleCommitMessage = async (
+    messages: string
+  ): Promise<string | undefined> => {
+    const params = {
+      model: MODEL,
+      messages,
+      temperature: 0,
+      top_p: 0.1,
+      max_tokens: MAX_TOKENS || 500
+    };
+    try {
+      const completionReponse = await this.openAI.createChatCompletion({
+        ...params,
+        messages: [
+          {
+            role: 'system',
+            content: ` ${IDENTITY} Your mission is to summarise multiple commit messages into a single commit message.`
+          },
+          {
+            role: 'user',
+            content: `Summarise the following commit messages into a single commit message title ensuring the title format stays the same.
+              ${
+                config?.OCO_EMOJI
+                  ? 'Use GitMoji convention to preface the summarised commit.'
+                  : 'Do not preface the commit with anything.'
+              }
+              ${
+                config?.OCO_DESCRIPTION
+                  ? 'Summarise the descriptions from the multiple messages into a single short description of WHY the changes are done after the commit message. Don\'t start it with "This commit", just describe the changes.'
+                  : 'The summarised commit message should just be one line with a commit message title and no description.'
+              }
+              ${
+                config?.OCO_ISSUE_ENABLED
+                  ? `You must also keep the Issue ID in the summarised commit message title.`
+                  : 'Don\'t include an Issue ID in the summarised commit message title.'
+              } 
+               The summarised commit message title needs to be less than 72 characters. Where there are multiple types (eg. fix, feat), this should be combined into the single most relevant type. 
+               You should only output ONE commit message:\n${messages}`
+          }
+        ]
+      });
+      const oneLineMessage = completionReponse.data.choices[0].message;
+      return oneLineMessage?.content;
+    } catch (error) {
+      outro(`${chalk.red('✖')} ${JSON.stringify(params)}`);
+
+      const err = error as Error;
+      outro(`${chalk.red('✖')} ${err?.message || err}`);
+
+      if (
+        axios.isAxiosError<{ error?: { message: string } }>(error) &&
+        error.response?.status === 401
+      ) {
+        const openAiError = error.response.data.error;
+
+        if (openAiError?.message) outro(openAiError.message);
+        outro(
+          'For help look into README https://github.com/di-sukharev/opencommit#setup'
+        );
+      }
+
+      throw err;
+    }
+  };
 
   public generateCommitMessage = async (
     messages: Array<ChatCompletionRequestMessage>

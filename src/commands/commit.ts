@@ -25,6 +25,8 @@ import { getConfig } from './config';
 
 const config = getConfig();
 
+let issueID = '';
+
 const getGitRemotes = async () => {
   const { stdout } = await execa('git', ['remote']);
   return stdout.split('\n').filter((remote) => Boolean(remote.trim()));
@@ -182,9 +184,7 @@ export async function commit(
     process.exit(1);
   }
 
-  let issueID = '';
-
-  if (config?.OCO_ISSUE_ENABLED) {
+  if (config?.OCO_ISSUE_ENABLED && !issueID) {
     const issueIDSpinner = spinner();
 
     issueIDSpinner.start('Confirming Issue ID');
