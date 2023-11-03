@@ -1,11 +1,42 @@
-## DVLA Usage
+# DVLA Usage
 This is a fork of [OpenCommit](https://github.com/di-sukharev/opencommit).
 - It includes functionality to use Azure OpenAPI service as a backend originating from this [pull request](https://github.com/di-sukharev/opencommit/pull/167).
 - The package has been renamed to `@dvla/opencommit` for internal use.
 - The MIT License still applies and references the contribution from the original author `Dima Sukharev`.
 
-&nbsp;  
-&nbsp;  
+## Quickstart
+ 
+1) Create a file `~/.opencommit` with the following contents:
+```
+OCO_OPENAI_API_KEY=<your Azure API token>
+OCO_OPENAI_BASE_PATH=<azure path for example: https://EXAMPLE.openai.azure.com/>
+OCO_OPENAI_API_TYPE=azure
+OCO_AZURE_DEPLOYMENT=turbo-613
+OCO_AZURE_API_VERSION=2023-07-01-preview
+OCO_ISSUE_ENABLED=true
+OCO_ISSUE_PREFIX=ET-
+```
+ 
+2) Download the latest release .tgz file from [OpenCommit Releases](https://github.com/dvla/opencommit/releases)
+
+3) Install OpenCommit globally to use in any repository using the latest release file:
+```
+   npm install -g /PATH-TO-FILE
+```
+4) You can then call OpenCommit directly to generate a commit message for your staged changes in your project:
+
+```sh
+git add <files...>
+opencommit
+```
+
+You can also use the `oco` shortcut:
+
+```sh
+git add <files...>
+oco
+```
+
 &nbsp;  
 &nbsp;  
 
@@ -98,7 +129,7 @@ OCO_MODEL=<either 'gpt-4', 'gpt-3.5-turbo-16k' (default), 'gpt-3.5-turbo-0613' o
 #### Azure Config
 
 ```env
-OCO_OPENAI_API_TYPE='azure'
+OCO_OPENAI_API_TYPE=azure
 OCO_OPENAI_API_KEY=<your Azure API token>
 OCO_OPENAI_BASE_PATH=<azure path for example: https://EXAMPLE.openai.azure.com/>
 OCO_AZURE_DEPLOYMENT=<azure deployment name>
