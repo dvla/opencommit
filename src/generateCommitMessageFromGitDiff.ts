@@ -11,6 +11,7 @@ import { tokenCount } from './utils/tokenCount';
 
 const config = getConfig();
 const MAX_TOKENS_INPUT = config?.OCO_TOKENS_MAX_INPUT || 4096;
+const MAX_TOKENS_OUTPUT = config?.OCO_TOKENS_MAX_INPUT || 500;
 
 const generateCommitMessageChatCompletionPrompt = async (
   diff: string,
@@ -51,7 +52,7 @@ export const generateCommitMessageByDiff = async (
       MAX_TOKENS_INPUT -
       ADJUSTMENT_FACTOR -
       INIT_MESSAGES_PROMPT_LENGTH -
-      config?.OCO_TOKENS_MAX_OUTPUT;
+      MAX_TOKENS_OUTPUT;
 
     if (tokenCount(diff) >= MAX_REQUEST_TOKENS) {
       const commitMessagePromises = await getCommitMsgsPromisesFromFileDiffs(
