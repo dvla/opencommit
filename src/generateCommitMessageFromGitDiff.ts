@@ -4,12 +4,13 @@ import {
 } from 'openai';
 
 import { api } from './api';
-import { DEFAULT_MODEL_TOKEN_LIMIT, getConfig } from './commands/config';
+import { getConfig } from './commands/config';
 import { getMainCommitPrompt } from './prompts';
 import { mergeDiffs } from './utils/mergeDiffs';
 import { tokenCount } from './utils/tokenCount';
 
 const config = getConfig();
+const MAX_TOKENS_INPUT = config?.OCO_TOKENS_MAX_INPUT || 4096;
 
 const generateCommitMessageChatCompletionPrompt = async (
   diff: string,
@@ -47,10 +48,10 @@ export const generateCommitMessageByDiff = async (
     ).reduce((a, b) => a + b, 0);
 
     const MAX_REQUEST_TOKENS =
-      DEFAULT_MODEL_TOKEN_LIMIT -
+      MAX_TOKENS_INPUT -
       ADJUSTMENT_FACTOR -
       INIT_MESSAGES_PROMPT_LENGTH -
-      config?.OCO_OPENAI_MAX_TOKENS;
+      config?.OCO_TOKENS_MAX_OUTPUT;
 
     if (tokenCount(diff) >= MAX_REQUEST_TOKENS) {
       const commitMessagePromises = await getCommitMsgsPromisesFromFileDiffs(

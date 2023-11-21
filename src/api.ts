@@ -12,7 +12,6 @@ import { intro, outro } from '@clack/prompts';
 import {
   CONFIG_MODES,
   AI_TYPE,
-  DEFAULT_MODEL_TOKEN_LIMIT,
   getConfig
 } from './commands/config';
 import { GenerateCommitMessageErrorEnum } from './generateCommitMessageFromGitDiff';
@@ -21,7 +20,8 @@ import { IDENTITY } from './prompts';
 
 const config = getConfig();
 
-const MAX_TOKENS = config?.OCO_OPENAI_MAX_TOKENS;
+const MAX_TOKENS_OUTPUT = config?.OCO_TOKENS_MAX_OUTPUT || 500;
+const MAX_TOKENS_INPUT = config?.OCO_TOKENS_MAX_INPUT || 4096;
 const BASE_PATH = config?.OCO_OPENAI_BASE_PATH;
 const API_KEY = config?.OCO_OPENAI_API_KEY;
 const API_TYPE = config?.OCO_OPENAI_API_TYPE || AI_TYPE.OPENAI;
@@ -83,7 +83,7 @@ class OpenAi {
       messages,
       temperature: 0,
       top_p: 0.1,
-      max_tokens: MAX_TOKENS || 500
+      max_tokens: MAX_TOKENS_OUTPUT
     };
     try {
       const completionReponse = await this.openAI.createChatCompletion({
@@ -148,14 +148,14 @@ class OpenAi {
       messages,
       temperature: 0,
       top_p: 0.1,
-      max_tokens: MAX_TOKENS || 500
+      max_tokens: MAX_TOKENS_OUTPUT
     };
     try {
       const REQUEST_TOKENS = messages
         .map((msg) => tokenCount(msg.content) + 4)
         .reduce((a, b) => a + b, 0);
 
-      if (REQUEST_TOKENS > DEFAULT_MODEL_TOKEN_LIMIT - MAX_TOKENS) {
+      if (REQUEST_TOKENS > MAX_TOKENS_INPUT - MAX_TOKENS_OUTPUT) {
         throw new Error(GenerateCommitMessageErrorEnum.tooMuchTokens);
       }
 
