@@ -32,7 +32,8 @@ const generateCommitMessageChatCompletionPrompt = async (
 export enum GenerateCommitMessageErrorEnum {
   tooMuchTokens = 'TOO_MUCH_TOKENS',
   internalError = 'INTERNAL_ERROR',
-  emptyMessage = 'EMPTY_MESSAGE'
+  emptyMessage = 'EMPTY_MESSAGE',
+  outputTokensTooHigh = 'Token limit exceeded, OCO_TOKENS_MAX_OUTPUT must be lower than currently set. Please adjust this value in your configuration.'
 }
 
 const ADJUSTMENT_FACTOR = 20;
@@ -102,7 +103,7 @@ function getMessagesPromisesByChangesInFile(
   // merge multiple line-diffs into 1 to save tokens
   const mergedChanges = mergeDiffs(
     fileDiffByLines.map((line) => hunkHeaderSeparator + line),
-    maxChangeLength
+    maxChangeLength 
   );
 
   const lineDiffsWithHeader = [];
@@ -134,6 +135,10 @@ function splitDiff(diff: string, maxChangeLength: number) {
   const lines = diff.split('\n');
   const splitDiffs = [];
   let currentDiff = '';
+
+  if (maxChangeLength <= 0) {
+    throw new Error(GenerateCommitMessageErrorEnum.outputTokensTooHigh);
+  }
 
   for (let line of lines) {
     // If a single line exceeds maxChangeLength, split it into multiple lines
