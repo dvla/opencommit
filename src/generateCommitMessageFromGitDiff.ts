@@ -103,7 +103,7 @@ function getMessagesPromisesByChangesInFile(
   // merge multiple line-diffs into 1 to save tokens
   const mergedChanges = mergeDiffs(
     fileDiffByLines.map((line) => hunkHeaderSeparator + line),
-    maxChangeLength 
+    maxChangeLength
   );
 
   const lineDiffsWithHeader = [];
