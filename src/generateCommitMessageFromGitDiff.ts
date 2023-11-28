@@ -10,8 +10,10 @@ import { mergeDiffs } from './utils/mergeDiffs';
 import { tokenCount } from './utils/tokenCount';
 
 const config = getConfig();
-const MAX_TOKENS_INPUT = config?.OCO_TOKENS_MAX_INPUT || 4096;
-const MAX_TOKENS_OUTPUT = config?.OCO_TOKENS_MAX_OUTPUT || 500;
+const DEFAULT_MAX_TOKENS_INPUT = 4096;
+const DEFAULT_MAX_TOKENS_OUTPUT = 500;
+const MAX_TOKENS_INPUT = config?.OCO_TOKENS_MAX_INPUT || DEFAULT_MAX_TOKENS_INPUT;
+const MAX_TOKENS_OUTPUT = config?.OCO_TOKENS_MAX_OUTPUT || DEFAULT_MAX_TOKENS_OUTPUT;
 
 const generateCommitMessageChatCompletionPrompt = async (
   diff: string,
@@ -32,7 +34,8 @@ const generateCommitMessageChatCompletionPrompt = async (
 export enum GenerateCommitMessageErrorEnum {
   tooMuchTokens = 'TOO_MUCH_TOKENS',
   internalError = 'INTERNAL_ERROR',
-  emptyMessage = 'EMPTY_MESSAGE'
+  emptyMessage = 'EMPTY_MESSAGE',
+  outputTokensTooHigh = `Token limit exceeded, OCO_TOKENS_MAX_OUTPUT must not be much higher than the default ${DEFAULT_MAX_TOKENS_OUTPUT} tokens.`
 }
 
 const ADJUSTMENT_FACTOR = 20;
@@ -134,14 +137,10 @@ function splitDiff(diff: string, maxChangeLength: number) {
   const lines = diff.split('\n');
   const splitDiffs = [];
   let currentDiff = '';
-  const outputTokensTooHighErrorMsg = `Token limit exceeded, OCO_TOKENS_MAX_OUTPUT must be reduced by at least ${-maxChangeLength} tokens. 
-  Alternatively, choose a model with a higher OCO_TOKENS_MAX_INPUT value.`;
-
-  if (maxChangeLength <= 0) {
-    throw new Error(outputTokensTooHighErrorMsg);
-  }
-
   
+  if (maxChangeLength <= 0) {
+    throw new Error(GenerateCommitMessageErrorEnum.outputTokensTooHigh);
+  }
 
   for (let line of lines) {
     // If a single line exceeds maxChangeLength, split it into multiple lines
