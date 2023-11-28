@@ -32,8 +32,7 @@ const generateCommitMessageChatCompletionPrompt = async (
 export enum GenerateCommitMessageErrorEnum {
   tooMuchTokens = 'TOO_MUCH_TOKENS',
   internalError = 'INTERNAL_ERROR',
-  emptyMessage = 'EMPTY_MESSAGE',
-  outputTokensTooHigh = 'Token limit exceeded, OCO_TOKENS_MAX_OUTPUT must be lower than currently set. Please adjust this value in your configuration.'
+  emptyMessage = 'EMPTY_MESSAGE'
 }
 
 const ADJUSTMENT_FACTOR = 20;
@@ -135,10 +134,14 @@ function splitDiff(diff: string, maxChangeLength: number) {
   const lines = diff.split('\n');
   const splitDiffs = [];
   let currentDiff = '';
+  const outputTokensTooHighErrorMsg = `Token limit exceeded, OCO_TOKENS_MAX_OUTPUT must be reduced by at least ${-maxChangeLength} tokens. 
+  Alternatively, choose a model with a higher OCO_TOKENS_MAX_INPUT value.`;
 
   if (maxChangeLength <= 0) {
-    throw new Error(GenerateCommitMessageErrorEnum.outputTokensTooHigh);
+    throw new Error(outputTokensTooHighErrorMsg);
   }
+
+  
 
   for (let line of lines) {
     // If a single line exceeds maxChangeLength, split it into multiple lines
