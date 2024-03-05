@@ -99,6 +99,18 @@ git add <files...>
 oco
 ```
 
+You can also run it with local model through ollama:
+- install and start ollama
+- run `ollama run mistral` (do this only once, to pull model)
+- run (in your project directory):
+
+```sh
+git add <files...>
+AI_PROVIDER='ollama' opencommit
+```
+
+
+
 ## Configuration
 
 ### Local per repo configuration

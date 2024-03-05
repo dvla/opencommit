@@ -1,6 +1,5 @@
 import axios from 'axios';
 import chalk from 'chalk';
-import { execa } from 'execa';
 import {
   ChatCompletionRequestMessage,
   Configuration as OpenAiApiConfiguration,
@@ -13,10 +12,11 @@ import {
   CONFIG_MODES,
   AI_TYPE,
   getConfig
-} from './commands/config';
-import { GenerateCommitMessageErrorEnum } from './generateCommitMessageFromGitDiff';
-import { tokenCount } from './utils/tokenCount';
-import { IDENTITY } from './prompts';
+} from '../commands/config';
+import { GenerateCommitMessageErrorEnum } from '../generateCommitMessageFromGitDiff';
+import { tokenCount } from '../utils/tokenCount';
+import { IDENTITY } from '../prompts';
+import { AiEngine } from './Engine';
 
 const config = getConfig();
 
@@ -31,11 +31,14 @@ const DEPLOYMENT = config?.OCO_AZURE_DEPLOYMENT;
 
 const [command, mode] = process.argv.slice(2);
 
-if (!API_KEY && command !== 'config' && mode !== CONFIG_MODES.set) {
+const isLocalModel = config?.OCO_AI_PROVIDER == 'ollama'
+
+
+if (!API_KEY && command !== 'config' && mode !== CONFIG_MODES.set && !isLocalModel) {
   intro('opencommit');
 
   outro(
-    'OCO_OPENAI_API_KEY is not set, please run `oco config set OCO_OPENAI_API_KEY=<your token>. Make sure you add payment details, so API works.`'
+    'OCO_OPENAI_API_KEY is not set, please run `oco config set OCO_OPENAI_API_KEY=<your token> . If you are using GPT, make sure you add payment details, so API works.`'
   );
   outro(
     'For help look into README https://github.com/di-sukharev/opencommit#setup'
@@ -43,7 +46,7 @@ if (!API_KEY && command !== 'config' && mode !== CONFIG_MODES.set) {
 
   process.exit(1);
 }
-class OpenAi {
+class OpenAi implements AiEngine {
   private openAiApiConfiguration = new OpenAiApiConfiguration({
     apiKey: API_KEY
   });
@@ -187,16 +190,5 @@ class OpenAi {
   };
 }
 
-export const getOpenCommitLatestVersion = async (): Promise<
-  string | undefined
-> => {
-  try {
-    const { stdout } = await execa('npm', ['view', 'opencommit', 'version']);
-    return stdout;
-  } catch (_) {
-    outro('Error while getting the latest version of opencommit');
-    return undefined;
-  }
-};
 
 export const api = new OpenAi();
