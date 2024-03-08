@@ -178,7 +178,7 @@ export async function commit(
     process.exit(1);
   }
 
-  intro('open-commit');
+  intro('DVLA OpenCommit');
   if (errorChangedFiles ?? errorStagedFiles) {
     outro(`${chalk.red('✖')} ${errorChangedFiles ?? errorStagedFiles}`);
     process.exit(1);
