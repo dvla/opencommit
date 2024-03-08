@@ -3,11 +3,11 @@ import {
   ChatCompletionRequestMessageRoleEnum
 } from 'openai';
 
-import { api } from './api';
 import { getConfig } from './commands/config';
 import { getMainCommitPrompt } from './prompts';
 import { mergeDiffs } from './utils/mergeDiffs';
 import { tokenCount } from './utils/tokenCount';
+import { getEngine } from './utils/engine';
 
 const config = getConfig();
 const DEFAULT_MAX_TOKENS_INPUT = 4096;
@@ -46,6 +46,7 @@ export const generateCommitMessageByDiff = async (
 ): Promise<string> => {
   try {
     const INIT_MESSAGES_PROMPT = await getMainCommitPrompt(issueID);
+    const engine = getEngine()
 
     const INIT_MESSAGES_PROMPT_LENGTH = INIT_MESSAGES_PROMPT.map(
       (msg) => tokenCount(msg.content) + 4
@@ -72,7 +73,7 @@ export const generateCommitMessageByDiff = async (
 
       const commitMessagesNewLines = commitMessages.join('\n');
 
-      const combinedCommitMessage = await api.generateSingleCommitMessage(commitMessagesNewLines);
+      const combinedCommitMessage = await engine.generateSingleCommitMessage(commitMessagesNewLines);
 
       if (!combinedCommitMessage)
       throw new Error(GenerateCommitMessageErrorEnum.emptyMessage);
@@ -82,7 +83,7 @@ export const generateCommitMessageByDiff = async (
 
     const messages = await generateCommitMessageChatCompletionPrompt(diff, issueID);
 
-    const commitMessage = await api.generateCommitMessage(messages);
+    const commitMessage = await engine.generateCommitMessage(messages);
 
     if (!commitMessage)
       throw new Error(GenerateCommitMessageErrorEnum.emptyMessage);
@@ -120,13 +121,14 @@ function getMessagesPromisesByChangesInFile(
     }
   }
 
+  const engine = getEngine()
   const commitMsgsFromFileLineDiffs = lineDiffsWithHeader.map(
     async (lineDiff) => {
       const messages = await generateCommitMessageChatCompletionPrompt(
         separator + lineDiff, issueID
       );
 
-      return api.generateCommitMessage(messages);
+      return engine.generateCommitMessage(messages);
     }
   );
 
@@ -199,7 +201,8 @@ export const getCommitMsgsPromisesFromFileDiffs = async (
         separator + fileDiff, issueID
       );
 
-      commitMessagePromises.push(api.generateCommitMessage(messages));
+      const engine = getEngine()
+      commitMessagePromises.push(engine.generateCommitMessage(messages));
     }
   }
 
